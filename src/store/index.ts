@@ -150,9 +150,6 @@ export const useStore = create<AppState>()(
       settings: defaultSettings,
       currentUser: null,
       invoiceLanguage: 'fr',
-      
-      // Debug: log state changes
-      // _debugLog: () => console.log('Store state:', get()),
 
       setLanguage: (lang) => set({ invoiceLanguage: lang }),
 
@@ -226,16 +223,7 @@ export const useStore = create<AppState>()(
           if (inv) get().addTimelineEvent({ clientId: inv.clientId, type: 'invoice_status', title: `Facture ${data.status}`, description: `${inv.number} — ${data.status}`, date: new Date().toISOString(), entityId: id });
         }
       },
-      deleteInvoice: (id) => {
-        console.log('deleteInvoice chamado com ID:', id);
-        console.log('Faturas antes:', get().invoices.length);
-        set((s) => {
-          const newInvoices = s.invoices.filter(i => i.id !== id);
-          console.log('Faturas depois:', newInvoices.length);
-          return { invoices: newInvoices };
-        });
-        console.log('Estado atualizado');
-      },
+      deleteInvoice: (id) => set((s) => ({ invoices: s.invoices.filter(i => i.id !== id) })),
 
       addPayment: (data) => {
         const payment: Payment = { ...data, id: uuidv4(), createdAt: new Date().toISOString() };

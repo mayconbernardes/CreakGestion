@@ -31,7 +31,7 @@ type InvoiceForm = {
 };
 
 export default function Invoices() {
-  const { invoices, clients, settings, addInvoice, updateInvoice, deleteInvoice, invoiceLanguage } = useStore();
+  const { invoices, clients, projects, settings, addInvoice, updateInvoice, deleteInvoice, invoiceLanguage } = useStore();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
@@ -53,12 +53,6 @@ export default function Invoices() {
 
   const [form, setForm] = useState<InvoiceForm>(getEmptyForm());
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // Debug: log invoices state
-  useEffect(() => {
-    console.log('Invoices state atual:', invoices);
-    console.log('Total de invoices:', invoices.length);
-  }, [invoices]);
 
   const calcItem = (item: InvoiceItem): InvoiceItem => {
     const subtotal = item.quantity * item.unitPrice;
@@ -154,12 +148,8 @@ export default function Invoices() {
   }, [searchParams, invoices]);
 
   const handleDelete = (id: string, number: string) => {
-    console.log('handleDelete chamado:', id, number);
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${number} ?\nCette action est irréversible.`)) {
-      console.log('Confirmação aceita, deletando...');
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${number} ?\n\nCette action est irréversible.`)) {
       deleteInvoice(id);
-      console.log('Fatura deletada, total de faturas agora:', invoices.length - 1);
-      alert(`Facture ${number} supprimée avec succès!`);
     }
   };
 
@@ -261,22 +251,50 @@ export default function Invoices() {
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(inv); }}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Télécharger PDF">
-                          <FileDown size={16} />
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          type="button"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDownloadPDF(inv); 
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all" 
+                          title="Télécharger PDF">
+                          <FileDown size={14} className="inline mr-1" />PDF
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Voir détails">
-                          <Eye size={16} />
+                        <button 
+                          type="button"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigate(`/invoices/${inv.id}`); 
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all" 
+                          title="Voir détails">
+                          <Eye size={14} className="inline mr-1" />Voir
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleEdit(inv); }}
-                          className="p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Modifier">
-                          <Edit2 size={16} />
+                        <button 
+                          type="button"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleEdit(inv); 
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all" 
+                          title="Modifier">
+                          <Edit2 size={14} className="inline mr-1" />Modifier
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDelete(inv.id, inv.number); }}
-                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
-                          <Trash2 size={16} />
+                        <button 
+                          type="button"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete(inv.id, inv.number); 
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all font-semibold" 
+                          title="Supprimer">
+                          <Trash2 size={14} className="inline mr-1" />Supprimer
                         </button>
                       </div>
                     </td>
@@ -313,15 +331,31 @@ export default function Invoices() {
               </div>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
-                  <select value={form.clientId} onChange={e => setForm({...form, clientId: e.target.value})} required
+                  <select value={form.clientId} onChange={e => setForm({...form, clientId: e.target.value, projectId: ''})} required
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">Sélectionner un client...</option>
                     {clients.map(c => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}{c.company ? ` — ${c.company}` : ''}</option>)}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Projet (optionnel)</label>
+                  <select value={form.projectId} onChange={e => setForm({...form, projectId: e.target.value})}
+                    disabled={!form.clientId}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    <option value="">— Aucun projet —</option>
+                    {form.clientId && projects.filter(p => p.clientId === form.clientId).map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                  {form.clientId && projects.filter(p => p.clientId === form.clientId).length === 0 && (
+                    <p className="text-xs text-gray-400 mt-1">Aucun projet pour ce client</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Date d'émission</label>
                   <input type="date" value={form.issueDate} onChange={e => setForm({...form, issueDate: e.target.value})}
