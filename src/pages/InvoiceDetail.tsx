@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
-import { ArrowLeft, FileDown, Send, Plus, CreditCard } from 'lucide-react';
+import { ArrowLeft, FileDown, Send, Plus, CreditCard, Edit2 } from 'lucide-react';
 import { generateInvoicePDF } from '../utils/pdf';
 import { format, parseISO } from 'date-fns';
 import type { InvoiceLanguage, PaymentMethod } from '../types';
@@ -57,8 +57,12 @@ export default function InvoiceDetail() {
             {Object.entries(languageNames).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
           <button onClick={handleDownloadPDF}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm">
             <FileDown size={16} /> Télécharger PDF
+          </button>
+          <button onClick={() => navigate(`/invoices?edit=${invoice.id}`)}
+            className="flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 shadow-sm">
+            <Edit2 size={16} /> Modifier
           </button>
           {invoice.amountDue > 0 && (
             <button onClick={() => { setPayForm({...payForm, amount: invoice.amountDue}); setShowPayment(true); }}

@@ -338,5 +338,10 @@ function formatDate(dateStr: string, lang: InvoiceLanguage): string {
 }
 
 function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format(amount);
+  const cur = currency && currency.length === 3 ? currency : 'EUR';
+  try {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur }).format(amount);
+  } catch {
+    return `${amount.toFixed(2)} €`;
+  }
 }
