@@ -54,6 +54,12 @@ export default function Invoices() {
   const [form, setForm] = useState<InvoiceForm>(getEmptyForm());
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Debug: log invoices state
+  useEffect(() => {
+    console.log('Invoices state atual:', invoices);
+    console.log('Total de invoices:', invoices.length);
+  }, [invoices]);
+
   const calcItem = (item: InvoiceItem): InvoiceItem => {
     const subtotal = item.quantity * item.unitPrice;
     const afterDiscount = subtotal * (1 - (item.discount || 0) / 100);
@@ -148,8 +154,12 @@ export default function Invoices() {
   }, [searchParams, invoices]);
 
   const handleDelete = (id: string, number: string) => {
+    console.log('handleDelete chamado:', id, number);
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${number} ?\nCette action est irréversible.`)) {
+      console.log('Confirmação aceita, deletando...');
       deleteInvoice(id);
+      console.log('Fatura deletada, total de faturas agora:', invoices.length - 1);
+      alert(`Facture ${number} supprimée avec succès!`);
     }
   };
 
