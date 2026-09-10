@@ -73,8 +73,14 @@ export default function Projects() {
                   className="flex-1 text-xs border border-gray-200 rounded px-2 py-1">
                   {Object.entries(statusLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
-                <button onClick={() => { if (confirm('Supprimer ?')) deleteProject(project.id); }}
-                  className="text-xs text-red-500 hover:text-red-700 px-2">✕</button>
+                <button onClick={() => { 
+                  if (window.confirm(`Êtes-vous sûr de vouloir supprimer le projet "${project.name}" ?\nCette action est irréversible.`)) {
+                    deleteProject(project.id); 
+                  }
+                }}
+                  className="px-3 py-1 text-xs bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg font-medium transition-colors" title="Supprimer le projet">
+                  Supprimer
+                </button>
               </div>
             </div>
           );

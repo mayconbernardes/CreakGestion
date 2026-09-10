@@ -49,7 +49,17 @@ export default function Quotes() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.clientId || form.items.length === 0) return;
-    if (editing) { updateQuote(editing.id, form); } else { addQuote(form); }
+    
+    // Recalculate all items and totals before saving
+    const calculatedItems = form.items.map(item => calcItem(item));
+    const subtotal = calculatedItems.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+    const discount = calculatedItems.reduce((s, i) => s + (i.quantity * i.unitPrice * (i.discount || 0) / 100), 0);
+    const taxAmount = calculatedItems.reduce((s, i) => s + i.taxAmount, 0);
+    const total = calculatedItems.reduce((s, i) => s + i.total, 0);
+    
+    const quoteData = { ...form, items: calculatedItems, subtotal, discount, taxAmount, total };
+    
+    if (editing) { updateQuote(editing.id, quoteData); } else { addQuote(quoteData); }
     setShowForm(false); setEditing(null); setForm(empty);
   };
 

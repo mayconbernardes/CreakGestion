@@ -95,10 +95,15 @@ export default function Invoices() {
     if (!form.clientId) { alert('Veuillez sélectionner un client'); return; }
     if (form.items.every(i => !i.description)) { alert('Veuillez ajouter au moins une prestation'); return; }
 
+    // Recalculate all items and totals before saving
+    const calculatedItems = form.items.map(item => calcItem(item));
+    const totals = recalcTotals(calculatedItems, form.amountPaid);
+    const invoiceData = { ...form, items: calculatedItems, ...totals };
+
     if (editingId) {
-      updateInvoice(editingId, form);
+      updateInvoice(editingId, invoiceData);
     } else {
-      addInvoice(form);
+      addInvoice(invoiceData);
     }
     setShowForm(false);
     setEditingId(null);
@@ -246,22 +251,22 @@ export default function Invoices() {
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-0.5">
-                        <button onClick={() => handleDownloadPDF(inv)}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Télécharger PDF">
-                          <FileDown size={15} />
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(inv); }}
+                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Télécharger PDF">
+                          <FileDown size={16} />
                         </button>
-                        <button onClick={() => navigate(`/invoices/${inv.id}`)}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Voir détails">
-                          <Eye size={15} />
+                        <button onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }}
+                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Voir détails">
+                          <Eye size={16} />
                         </button>
-                        <button onClick={() => handleEdit(inv)}
-                          className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors" title="Modifier">
-                          <Edit2 size={15} />
+                        <button onClick={(e) => { e.stopPropagation(); handleEdit(inv); }}
+                          className="p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Modifier">
+                          <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(inv.id, inv.number)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Supprimer">
-                          <Trash2 size={15} />
+                        <button onClick={(e) => { e.stopPropagation(); handleDelete(inv.id, inv.number); }}
+                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>
